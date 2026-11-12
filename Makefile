@@ -1,11 +1,11 @@
 BUILD_DIR := ./build
 SRC_DIR := ./src
 
-version.lock:
-	madlib install
-
 README.md: madlib.json
-	pilcrow -i README.md --repo brekk/recess --auto
+	pilcrow -i README.md --repo brekk/might --auto
+
+version.lock: madlib.json
+	madlib install
 
 .PHONY: clean
 clean:
