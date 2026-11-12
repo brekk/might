@@ -9,49 +9,15 @@ import Might from "@/Might"
 
 
 
-// single value in a mutable Array
 export type Baton a = Baton(Array a)
-/*
-export unsafePull = where {
-  Baton(arr) =>
-    Array.unsafeAt(0, arr)
-}
-*/
 export baton = (a) => Baton(Array.fromList([a]))
-/*
-instance Functor Baton {
-  map = (fn, b) => baton(fn(unsafePull(b)))
-}
-instance Applicative Baton {
-  ap = (mf, m) => {
-    fn = unsafePull(mf)
-    x = unsafePull(m)
-    return baton(fn(x))
-  }
-
-  pure = baton
-}
-instance Monad Baton {
-  chain = (fn, m) => baton(unsafePull(fn(unsafePull(m))))
-  of = baton
-}
-*/
 might :: a -> Might (Baton a)
 export might = (a) => Might.Might(() => baton(a))
-// deferred pull
 grab :: Baton a -> Might a
 export grab = where {
   Baton(arr) =>
     Might.Might(() => Array.unsafeAt(0, arr))
 }
-// set :: a -> Baton a -> Baton a
-// export set = (x, ref) => where(ref) {
-//   Baton(arr) =>
-//     do {
-//       Array.unsafeSet(0, x, arr)
-//       return Baton(arr)
-//     }
-// }
 change :: (a -> a) -> Baton a -> Might a
 export change = (f, ref) => where(ref) {
   Baton(arr) =>

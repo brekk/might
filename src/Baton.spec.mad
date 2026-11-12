@@ -7,47 +7,6 @@ import Might from "@/Might"
 
 
 
-unsafePull = where {
-  Baton.Baton(arr) =>
-    Array.unsafeAt(0, arr)
-}
-// Study.report(
-//   pipe(
-//     Baton.baton,
-//     unsafePull,
-//   ),
-//   "baton + pull = identity",
-//   [#[200, 200]],
-// )
-/*
-Study.report(
-  pipe(
-    pure,
-    map((x) => x * 2),
-    unsafePull,
-  ),
-  "Batons can be mapped",
-  [#[200, 400]],
-)
-Study.report(
-  pipe(
-    Baton.baton,
-    ap(of((x) => x * 2)),
-    unsafePull,
-  ),
-  "Batons can be apped",
-  [#[200, 400]],
-)
-Study.report(
-  pipe(
-    Baton.baton,
-    chain((x) => Baton.baton(x * 2)),
-    unsafePull,
-  ),
-  "Batons can be chained",
-  [#[200, 400]],
-)
-*/
 Study.report(
   pipe(
     Baton.might,
@@ -64,15 +23,6 @@ Study.report(
   "Batons can be converted to Might",
   [#[Baton.baton(200), 200]],
 )
-// Study.report(
-//   pipe(
-//     Baton.set(400),
-//     Baton.grab,
-//     Might.run,
-//   ),
-//   "Batons can be set",
-//   [#[Baton.baton(200), 400]],
-// )
 Study.report(
   pipe(
     Baton.change((x) => x * 2),
