@@ -4,5 +4,12 @@
   "main": "src/Main.mad",
   "importAliases": {
     ".": "src"
-  }
+  },
+  "dependencies": [
+    {
+      "minVersion": "0.1.0",
+      "url": "https://github.com/brekk/study/archive/refs/tags/v0.1.0.zip",
+      "description": "Study"
+    }
+  ]
 }

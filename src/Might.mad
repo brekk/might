@@ -1,0 +1,107 @@
+import {} from "Applicative"
+import Fn from "Function"
+import {} from "Functor"
+import {} from "Monad"
+import {} from "MonadRec"
+import Wish from "Wish"
+
+
+
+export type Might a = Might({} -> a)
+export mighty = (e) => Might(() => e)
+export run = where {
+  Might(f) =>
+    f()
+}
+instance Functor Might {
+  map = (fn, m) => Might(() => fn(run(m)))
+}
+instance Applicative Might {
+  ap = (mf, m) => Might(
+    () => {
+      f = run(mf)
+      x = run(m)
+      return f(x)
+    },
+  )
+
+  pure = mighty
+}
+instance Monad Might {
+  chain = (fn, m) => Might(() => run(fn(run(m))))
+
+  of = mighty
+}
+instance (Semigroup a,
+Eq a) => Semigroup (Might a) {
+  assoc = (a, b) => chain((x) => map((y) => assoc(x, y), b), a)
+}
+instance MonadRec Might {
+  tailRecM = (fn, a) => Might(
+    () => {
+      go = pipe(
+        fn,
+        run,
+        where {
+          Fn.Done(x) =>
+            x
+
+          Fn.Loop(next) =>
+            go(next)
+        },
+      )
+      return go(a)
+    },
+  )
+}
+until :: Might Boolean -> Might {}
+export until = (x) => tailRecM(
+  (_) => map(
+    (done) => if (done) {
+      Fn.Done({})
+    } else {
+      Fn.Loop({})
+    },
+    x,
+  ),
+  {},
+)
+whileM :: Might Boolean -> Might a -> Might {}
+export whileM = (still, x) => tailRecM(
+  (_) => chain(
+    (ok) => if (ok) {
+      map(() => Fn.Loop({}), x)
+    } else {
+      mighty(Fn.Done({}))
+    },
+    still,
+  ),
+  {},
+)
+for :: Integer -> Integer -> (Integer -> Might {}) -> Might {}
+export for = (a, z, fn) => tailRecM(
+  (i) => if (i >= z) {
+    mighty(Fn.Done({}))
+  } else {
+    map(() => Fn.Loop(i + 1), fn(i))
+  },
+  a,
+)
+forEach :: List a -> (a -> Might {}) -> Might {}
+export forEach = (xs, f) => tailRecM(
+  where {
+    [] =>
+      mighty(Fn.Done({}))
+
+    [x, ...rest] =>
+      map(() => Fn.Loop(rest), f(x))
+  },
+  xs,
+)
+toWish :: Might a -> Wish e a
+export toWish = (m) => Wish.Wish(
+  (_, goodPath) => {
+    goodPath(run(m))
+    return () => {}
+  },
+)
