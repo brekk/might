@@ -1,0 +1,72 @@
+import type { Might } from "@/Might"
+
+import {} from "Applicative"
+import Array from "Array"
+import {} from "Functor"
+import {} from "Monad"
+
+import Might from "@/Might"
+
+
+
+// single value in a mutable Array
+export type Baton a = Baton(Array a)
+export pull = where {
+  Baton(arr) =>
+    Array.unsafeAt(0, arr)
+}
+export baton = (a) => Baton(Array.fromList([a]))
+instance Functor Baton {
+  map = (fn, b) => baton(fn(pull(b)))
+}
+instance Applicative Baton {
+  ap = (mf, m) => {
+    fn = pull(mf)
+    x = pull(m)
+    return baton(fn(x))
+  }
+
+  pure = baton
+}
+instance Monad Baton {
+  chain = (fn, m) => baton(pull(fn(pull(m))))
+
+  of = baton
+}
+might :: a -> Might (Baton a)
+export might = (a) => Might.Might(() => baton(a))
+grab :: Baton a -> Might a
+export grab = where {
+  Baton(arr) =>
+    Might.Might(() => Array.unsafeAt(0, arr))
+}
+set :: a -> Baton a -> Baton a
+export set = (x, ref) => where(ref) {
+  Baton(arr) =>
+    do {
+      Array.unsafeSet(0, x, arr)
+      return Baton(arr)
+    }
+}
+change :: (a -> b) -> Baton a -> Might b
+export change = (f, ref) => where(ref) {
+  Baton(arr) =>
+    Might.Might(
+      () => {
+        x = f(Array.unsafeAt(0, arr))
+        Array.unsafeSet(0, x, arr)
+        return x
+      },
+    )
+}
+changeDrop :: (a -> b) -> Baton a -> Might {}
+export changeDrop = (f, ref) => where(ref) {
+  Baton(arr) =>
+    Might.Might(
+      () => {
+        x = f(Array.unsafeAt(0, arr))
+        Array.unsafeSet(0, x, arr)
+        return {}
+      },
+    )
+}

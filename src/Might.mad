@@ -8,6 +8,7 @@ import Wish from "Wish"
 
 
 export type Might a = Might({} -> a)
+alias Meh = Might {}
 export mighty = (e) => Might(() => e)
 export run = where {
   Might(f) =>
@@ -36,25 +37,37 @@ instance (Semigroup a,
 Eq a) => Semigroup (Might a) {
   assoc = (a, b) => chain((x) => map((y) => assoc(x, y), b), a)
 }
+isLoop = where {
+  Fn.Loop(_) =>
+    true
+
+  _ =>
+    false
+}
 instance MonadRec Might {
   tailRecM = (fn, a) => Might(
     () => {
-      go = pipe(
-        fn,
-        run,
-        where {
-          Fn.Done(x) =>
-            x
-
+      step = run(fn(a))
+      while(isLoop(step)) do {
+        step := where(step) {
           Fn.Loop(next) =>
-            go(next)
-        },
-      )
-      return go(a)
+            run(fn(next))
+
+          _ =>
+            step
+        }
+      }
+      return where(step) {
+        Fn.Done(r) =>
+          r
+
+        _ =>
+          ???
+      }
     },
   )
 }
-until :: Might Boolean -> Might {}
+until :: Might Boolean -> Meh
 export until = (x) => tailRecM(
   (_) => map(
     (done) => if (done) {
@@ -66,7 +79,7 @@ export until = (x) => tailRecM(
   ),
   {},
 )
-whileM :: Might Boolean -> Might a -> Might {}
+whileM :: Might Boolean -> Might a -> Meh
 export whileM = (still, x) => tailRecM(
   (_) => chain(
     (ok) => if (ok) {
@@ -78,7 +91,7 @@ export whileM = (still, x) => tailRecM(
   ),
   {},
 )
-for :: Integer -> Integer -> (Integer -> Might {}) -> Might {}
+for :: Integer -> Integer -> (Integer -> Meh) -> Meh
 export for = (a, z, fn) => tailRecM(
   (i) => if (i >= z) {
     mighty(Fn.Done({}))
@@ -87,8 +100,8 @@ export for = (a, z, fn) => tailRecM(
   },
   a,
 )
-forEach :: List a -> (a -> Might {}) -> Might {}
-export forEach = (xs, f) => tailRecM(
+forEach :: (a -> Meh) -> List a -> Meh
+export forEach = (f, xs) => tailRecM(
   where {
     [] =>
       mighty(Fn.Done({}))
@@ -98,10 +111,12 @@ export forEach = (xs, f) => tailRecM(
   },
   xs,
 )
-toWish :: Might a -> Wish e a
-export toWish = (m) => Wish.Wish(
+toWishWithCancel :: ({} -> {}) -> Might a -> Wish e a
+export toWishWithCancel = (cancel, m) => Wish.Wish(
   (_, goodPath) => {
     goodPath(run(m))
-    return () => {}
+    return cancel
   },
 )
+toWish :: Might a -> Wish e a
+export toWish = toWishWithCancel(() => {})

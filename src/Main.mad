@@ -1,7 +1,33 @@
+import Array from "Array"
 import IO from "IO"
 
+import Baton from "@/Baton"
+import Might from "@/Might"
+
+
+
 main = () => {
-  pipe(
-    IO.pTrace("Main file for:"),
-  )("might")
+  five = Might.mighty([5])
+  seven = Might.mighty([7])
+  IO.pTrace("FIVE?", five ++ seven)
+  IO.pTrace("FIVE ALIVE?", Might.run(five ++ seven))
+  IO.pTrace("HUH", Might.run(Might.for(3, 5, (_) => of({}))))
+  IO.pTrace(
+    "more",
+    pipe(
+      pure,
+      Might.until,
+      Might.run,
+    )(true),
+  )
+
+  raw = Might.run(Might.whileM(Might.mighty(false), Might.mighty("cool")))
+  IO.pTrace("RAWAWAWAW", raw)
+  twoThousand = Baton.might(2000)
+  IO.pTrace("baton", Might.run(twoThousand))
+  IO.pTrace("hooray", Might.run(Baton.grab(Baton.Baton(Array.fromList([2000])))))
+  IO.pTrace(
+    "hooray * 2",
+    Might.run(Baton.change((x) => x * 2, Baton.Baton(Array.fromList([2000])))),
+  )
 }

@@ -1,0 +1,119 @@
+import Fn from "Function"
+import IO from "IO"
+
+import Study from "Study"
+
+import Might from "@/Might"
+
+
+
+Study.report(
+  pipe(
+    Might.mighty,
+    Might.run,
+  ),
+  "Might abstracts effects",
+  [#["one", "one"]],
+)
+Study.report(
+  pipe(
+    Might.mighty,
+    map((x) => x * 2),
+    Might.run,
+  ),
+  "Mights can be mapped",
+  [#[3_b, 6_b]],
+)
+Study.report(
+  pipe(
+    Might.mighty,
+    ap(Might.mighty((x) => x * 2)),
+    Might.run,
+  ),
+  "Mights can be apped",
+  [#[3_b, 6_b]],
+)
+Study.report(
+  pipe(
+    Might.mighty,
+    chain((x) => of(x * 2)),
+    Might.run,
+  ),
+  "Mights can be chained",
+  [#[3_b, 6_b]],
+)
+Study.report(
+  pipe(
+    Might.mighty,
+    (x) => x ++ pure(["yes"]),
+    Might.run,
+  ),
+  "Mights can be associated",
+  [#[["hell"], ["hell", "yes"]]],
+)
+Study.report(
+  pipe(
+    Might.mighty,
+    Might.until,
+    Might.run,
+  ),
+  "Might.until",
+  [#[true, {}]],
+)
+Study.report(
+  pipe(
+    Might.mighty,
+    Might.whileM($, Might.mighty("cool")),
+    Might.run,
+  ),
+  "Might.whileM",
+  [#[false, {}]],
+)
+#iftarget js
+// we can do up to 1000000 semi-comfortably but maybe no need on regular runs
+Study.report(
+  pipe(
+    Might.for(0, $, (index) => Might.mighty({})),
+    Might.run,
+  ),
+  "Might.for",
+  [#[100000, {}]],
+)
+#elseif llvm
+Study.report(
+  pipe(
+    Might.for(0, $, (index) => Might.mighty({})),
+    Might.run,
+  ),
+  "Might.for",
+  [#[10000000, {}]],
+)
+#endif
+Study.report(
+  pipe(
+    Might.forEach((index) => Might.mighty({})),
+    Might.run,
+  ),
+  "Might.forEach",
+  [#[[4], {}]],
+)
+Study.reportAsync(
+  pipe(
+    Might.mighty,
+    map((x) => x * 4),
+    Might.toWish,
+  ),
+  "Might.forEach",
+  [#[4, 16]],
+)
+Study.report(
+  pipe(
+    (v) => do {
+      x <- map((w) => w / 2, v)
+      return of(x)
+    },
+    Might.run,
+  ),
+  "Might with do notation is a thing",
+  [#[Might.mighty(200), 100]],
+)

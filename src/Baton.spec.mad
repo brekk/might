@@ -1,0 +1,96 @@
+import Array from "Array"
+
+import Study from "Study"
+
+import Baton from "@/Baton"
+import Might from "@/Might"
+
+
+
+Study.report(
+  pipe(
+    Baton.baton,
+    Baton.pull,
+  ),
+  "baton + pull = identity",
+  [#[200, 200]],
+)
+Study.report(
+  pipe(
+    pure,
+    map((x) => x * 2),
+    Baton.pull,
+  ),
+  "Batons can be mapped",
+  [#[200, 400]],
+)
+Study.report(
+  pipe(
+    Baton.baton,
+    ap(of((x) => x * 2)),
+    Baton.pull,
+  ),
+  "Batons can be apped",
+  [#[200, 400]],
+)
+Study.report(
+  pipe(
+    Baton.baton,
+    chain((x) => Baton.baton(x * 2)),
+    Baton.pull,
+  ),
+  "Batons can be chained",
+  [#[200, 400]],
+)
+Study.report(
+  pipe(
+    Baton.might,
+    Might.run,
+  ),
+  "Values can be wrapped in Batons can be wrapped in Might",
+  [#[200, Baton.baton(200)]],
+)
+Study.report(
+  pipe(
+    Baton.grab,
+    Might.run,
+  ),
+  "Batons can be converted to Might",
+  [#[Baton.baton(200), 200]],
+)
+Study.report(
+  pipe(
+    Baton.set(400),
+    Baton.grab,
+    Might.run,
+  ),
+  "Batons can be set",
+  [#[Baton.baton(200), 400]],
+)
+Study.report(
+  pipe(
+    Baton.change((x) => x * 2),
+    Might.run,
+  ),
+  "Batons can be mapped as they are wrapped in Might",
+  [#[Baton.baton(200), 400]],
+)
+Study.report(
+  pipe(
+    Baton.changeDrop((x) => x * 2),
+    Might.run,
+  ),
+  "Batons can be mapped as they are wrapped in Might, with an optional explicit return value",
+  [#[Baton.baton(200), {}]],
+)
+Study.report(
+  (limit) => Might.run(
+    do {
+      b <- Baton.might(0)
+      _ <- Might.whileM(map((n) => n < limit, Baton.grab(b)), Baton.change((n) => n + 1, b))
+      return Baton.grab(b)
+    },
+  ),
+  "Might.whileM runs the body until the condition fails",
+  [#[3, 3], #[0, 0]],
+)
