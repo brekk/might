@@ -1,0 +1,72 @@
+{
+  "buildHash": "9554480529ba308a939aa0a58f068f19",
+  "jsApi": {
+    "apiInstances": [
+      "MonadRec Might",
+      "Semigroup n590647783936702427, Eq n590647783936702427 => Semigroup (Might n590647783936702427)",
+      "Monad Might",
+      "Applicative Might",
+      "Functor Might"
+    ],
+    "apiAliases": {},
+    "apiInterfaces": {},
+    "apiNames": {
+      "src/Might.mad#toWishWithCancel": "({} -> {}) -> Might a -> Wish b a",
+      "src/Might.mad#until": "Might Boolean -> Might {}",
+      "src/Might.mad#whileM": "Might Boolean -> Might a -> Might {}",
+      "src/Baton.mad#baton": "a -> Baton a",
+      "src/Baton.mad#grab": "Baton a -> Might a",
+      "src/Baton.mad#might": "a -> Might (Baton a)",
+      "src/Might.mad#mighty": "a -> Might a",
+      "src/Baton.mad#change": "(a -> a) -> Baton a -> Might a",
+      "src/Might.mad#run": "Might a -> a",
+      "src/Might.mad#toWish": "Might a -> Wish b a",
+      "src/Might.mad#for": "Integer -> Integer -> (Integer -> Might {}) -> Might {}",
+      "src/Baton.mad#changeDrop": "(a -> a) -> Baton a -> Might {}",
+      "src/Might.mad#forEach": "(a -> Might {}) -> List a -> Might {}"
+    },
+    "apiTypes": {
+      "src/Might.mad#Might a": [
+        "Might ({} -> a)"
+      ],
+      "src/Baton.mad#Baton a": [
+        "Baton (Array a)"
+      ]
+    }
+  },
+  "llvmApi": {
+    "apiInstances": [
+      "MonadRec Might",
+      "Semigroup n590647783936702427, Eq n590647783936702427 => Semigroup (Might n590647783936702427)",
+      "Monad Might",
+      "Applicative Might",
+      "Functor Might"
+    ],
+    "apiAliases": {},
+    "apiInterfaces": {},
+    "apiNames": {
+      "src/Might.mad#toWishWithCancel": "({} -> {}) -> Might a -> Wish b a",
+      "src/Might.mad#until": "Might Boolean -> Might {}",
+      "src/Might.mad#whileM": "Might Boolean -> Might a -> Might {}",
+      "src/Baton.mad#baton": "a -> Baton a",
+      "src/Baton.mad#grab": "Baton a -> Might a",
+      "src/Baton.mad#might": "a -> Might (Baton a)",
+      "src/Might.mad#mighty": "a -> Might a",
+      "src/Baton.mad#change": "(a -> a) -> Baton a -> Might a",
+      "src/Might.mad#run": "Might a -> a",
+      "src/Might.mad#toWish": "Might a -> Wish b a",
+      "src/Might.mad#for": "Integer -> Integer -> (Integer -> Might {}) -> Might {}",
+      "src/Baton.mad#changeDrop": "(a -> a) -> Baton a -> Might {}",
+      "src/Might.mad#forEach": "(a -> Might {}) -> List a -> Might {}"
+    },
+    "apiTypes": {
+      "src/Might.mad#Might a": [
+        "Might ({} -> a)"
+      ],
+      "src/Baton.mad#Baton a": [
+        "Baton (Array a)"
+      ]
+    }
+  },
+  "versionHash": "25e64aa754c310d45c1e084d574c1bb0"
+}
