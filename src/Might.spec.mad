@@ -69,26 +69,14 @@ Study.report(
   "Might.whileM",
   [#[false, {}]],
 )
-#iftarget js
-// we can do up to 1000000 semi-comfortably but maybe no need on regular runs
 Study.report(
   pipe(
     Might.for(0, $, (index) => Might.mighty({})),
     Might.run,
   ),
   "Might.for",
-  [#[100000, {}]],
+  [#[1000000, {}]],
 )
-#elseif llvm
-Study.report(
-  pipe(
-    Might.for(0, $, (index) => Might.mighty({})),
-    Might.run,
-  ),
-  "Might.for",
-  [#[10000000, {}]],
-)
-#endif
 Study.report(
   pipe(
     Might.forEach((index) => Might.mighty({})),
@@ -103,7 +91,7 @@ Study.reportAsync(
     map((x) => x * 4),
     Might.toWish,
   ),
-  "Might.forEach",
+  "Might.toWish",
   [#[4, 16]],
 )
 Study.report(

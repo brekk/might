@@ -30,4 +30,14 @@ main = () => {
     "hooray * 2",
     Might.run(Baton.change((x) => x * 2, Baton.Baton(Array.fromList([2000])))),
   )
+
+  runner = (limit) => Might.run(
+    do {
+      b <- Baton.might(0)
+      c <- Might.whileM(map((n) => n < limit, Baton.grab(b)), Baton.changeDrop((n) => n + 1, b))
+      return Baton.grab(b)
+    },
+  )
+  IO.pTrace("RUNNER: 3", runner(3))
+  IO.pTrace("RUNNER: 0", runner(0))
 }

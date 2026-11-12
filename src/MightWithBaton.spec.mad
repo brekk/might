@@ -1,0 +1,90 @@
+import IO from "IO"
+
+import Study from "Study"
+
+import Baton from "@/Baton"
+import Might from "@/Might"
+
+
+
+Study.report((x) => x == "yes", "smoke test", [#["yes", true]])
+Study.report(
+  (limit) => Might.run(
+    do {
+      b <- Baton.might(0)
+      _ <- Might.whileM(map((n) => n < limit, Baton.grab(b)), Baton.changeDrop((n) => n + 1, b))
+      return Baton.grab(b)
+    },
+  ),
+  "Might.whileM runs the body until the condition fails",
+  [#[3, 3], #[0, 0]],
+)
+Study.report(
+  (limit) => Might.run(
+    do {
+      b <- Baton.might(0)
+      _ <- Might.until(map((n) => n >= limit, Baton.change((n) => n + 1, b)))
+      return Baton.grab(b)
+    },
+  ),
+  "Might.until runs the condition at least once",
+  [#[3, 3], #[0, 1]],
+)
+Study.report(
+  Study.caseN2(
+    (lo, hi) => Might.run(
+      do {
+        b <- Baton.might(0)
+        _ <- Might.for(lo, hi, (i) => Baton.changeDrop((n) => n + i, b))
+        return Baton.grab(b)
+      },
+    ),
+  ),
+  "Might.for",
+  [#[#[0, 5], 10], #[#[2, 5], 9], #[#[3, 3], 0], #[#[5, 3], 0]],
+)
+Study.report(
+  (xs) => Might.run(
+    do {
+      b <- Baton.might([])
+      _ <- Might.forEach((x) => Baton.changeDrop((acc) => acc ++ [x], b), xs)
+      return Baton.grab(b)
+    },
+  ),
+  "Might.forEach",
+  [#[[1, 2, 3], [1, 2, 3]], #[[], []]],
+)
+Study.report(
+  (n) => Might.run(
+    do {
+      b <- Baton.might(n)
+      _ <- Might.mighty(Baton.changeDrop((x) => x + 1, b))
+      return Baton.grab(b)
+    },
+  ),
+  "Might values do nothing until run",
+  [#[0, 0]],
+)
+Study.report(
+  (fresh) => Might.run(
+    do {
+      a <- fresh
+      b <- fresh
+      _ <- Baton.changeDrop((x) => x + 1, a)
+      return Baton.grab(b)
+    },
+  ),
+  "Baton.might allocates on run",
+  [#[Baton.might(0), 0]],
+)
+Study.report(
+  (n) => Might.run(
+    do {
+      b <- Baton.might(n)
+      _ <- Might.mighty(chain((_) => Baton.changeDrop((x) => x + 1, b), Baton.grab(b)))
+      return Baton.grab(b)
+    },
+  ),
+  "chain defers",
+  [#[0, 0]],
+)
