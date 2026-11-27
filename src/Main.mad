@@ -6,7 +6,7 @@ import Might from "@/Might"
 
 
 
-main = () => {
+mainAlgebraic = () => {
   five = Might.mighty([5])
   seven = Might.mighty([7])
   IO.pTrace("FIVE?", five ++ seven)
@@ -40,4 +40,41 @@ main = () => {
   )
   IO.pTrace("RUNNER: 3", runner(3))
   IO.pTrace("RUNNER: 0", runner(0))
+}
+greet = (name) => IO.putLine("hello " ++ name)
+greetM = (name) => Might.Might(() => greet(name))
+twice = (value) => {
+  IO.pTrace("unit", value)
+  return value
+}
+twiceM = (value) => do {
+  IO.pTrace("might, wrapped, unevaluated", value)
+  _ <- map(IO.pTrace("one"), value)
+  return map(IO.pTrace("two"), value)
+}
+mainReadmeExample = () => {
+  IO.putLine("START")
+  IO.putLine("ONE")
+  // runs once
+  twice(greet("there"))
+  IO.putLine("TWO")
+  // runs twice
+  Might.run(twiceM(greetM("world")))
+}
+main = () => {
+  IO.pTrace(
+    "RAW",
+    Might.run(
+      do {
+        n <- Baton.might(0)
+        built = twiceM(Baton.changeDrop((c) => c + 1, n))
+        // 0: built, not run
+        before <- Baton.grab(n)
+        _ <- built
+        // 2
+        after <- Baton.grab(n)
+        return Might.mighty(#[before, after])
+      },
+    ),
+  )
 }

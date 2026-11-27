@@ -11,28 +11,81 @@ based on purescript-effect
 
 ---
 
-## Might
+## Why use `might`?
 
-A `Might` is used to model side-effects. It might be a value, if `run`. If it's not run, it remains hypothetical.
+### Problem
 
-```madlib_
-hypotheticallyFive = mighty(5)
-actuallyFive = run(hypotheticallyFive)
+Madlib is eager. A function that performs an effect does so at call-time. Effects cannot be passed around as values.
+
+```madlib
+import IO from "IO"
+
+greet = (name) => IO.putLine("hello " ++ name)
+
+twice = (value) => {
+  IO.pTrace("unit", value)
+  return value
+}
+main = () => {
+  twice(greet("there"))
+}
 ```
 
-A `Might` obeys the monadic laws you'd hope and expect.
+`greet` is a side effect. `greet("there")` runs it and prints "hello there". `twice` receives nothing / the unit `{}` value. You can't repeat, reorder or delay things from `twice`. The above would only print once.
 
-```madlib_
-map((x) => x * 2, mighty(5)) // Might({} -> 10)
-ap(mighty((x) => x * 2), mighty(5)) // Might({} -> 10)
-chain(of((x) => x * 2), mighty(5)) // Might({} -> 10)
-mighty(["hell"]) ++ mighty(["yes"]) // Might({} -> ["hell", "yes"])
+### Solution
+
+An effect is wrapped in a thunk. Building it does nothing, but it can be `run` to perform the actual effect.
+
+```madlib
+import IO from "IO"
+import Might from "might"
+
+greet = (name) => Might.Might(() => greet(name))
+
+twice = (value) => do {
+  _ <- value
+  return value
+}
+
+main = () => {
+  Might.run(twice(greet("world")))
+}
 ```
 
-You can use the additional Might API functions, such as `until`, `whileM`, `for`, `forEach` to model effectful value operations. See the tests for more details.
+This prints twice. With `might`, effects are values can be created, composed, transformed and passed around. They are lazy and execute only when invoked with `Might.run`
 
-## Baton
+This power lends itself to modeling any process which has otherwise opaque side-effects, giving users more control over both the effect and the accuracy of the representation.
 
-A `Baton` is a mutable value, used to model mutation in concert with a `Might`.
+### Modeling mutable values
 
-See `MightWithBaton.spec.mad` for more comprehensive usage details.
+We can use `might`'s `Baton` module to provide a mutable value that is read and written through a `Might` instance.
+
+```madlib
+import IO from "IO"
+import Might from "might"
+import Baton from "might/Baton"
+
+twice = (value) => do {
+  _ <- value
+  return value
+}
+
+main = () => {
+  IO.pTrace(
+    "RAW",
+    Might.run(
+      do {
+        n <- Baton.might(0)
+        built = twice(Baton.changeDrop((c) => c + 1, n))
+        // 0: built, not run
+        before <- Baton.grab(n)
+        _ <- built
+        // 2
+        after <- Baton.grab(n)
+        return Might.mighty(#[before, after])
+      },
+    ),
+  )
+}
+```
