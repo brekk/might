@@ -1,5 +1,5 @@
 {
-  "buildHash": "d0fe1c73c8afb5ee75911d1eaeb7cbb2",
+  "buildHash": "c92fec522de872ee0efa5a08163cd52c",
   "jsApi": {
     "apiInstances": [
       "MonadRec Might",
@@ -52,5 +52,5 @@
       ]
     }
   },
-  "versionHash": "47cd76e43f74bbc2e1baaf194d07e1fa"
+  "versionHash": "3accddf64b1dd03abeb9b0b3e5a7ba44"
 }
